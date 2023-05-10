@@ -1,55 +1,67 @@
-import { Fragment, useState } from "react";
-import "./App.css";
-import AddContact from "./components/AddContact";
-import ContactList from "./components/ContactList";
+import React, { useState } from 'react';
+import AddContact from './components/AddContact';
+import ContactList from './components/ContactList';
 const DATA_URL =
-  "https://raw.githubusercontent.com/Pratikesh-kumar/http-request/master/src/data.json";
-function App() {
+  'https://raw.githubusercontent.com/codingscenes/react-app/http-get-request/data.json';
+
+const App = () => {
   const [contacts, setContacts] = useState([]);
-  const [isLoading, setIsloading] = useState(false);
-  const fetchContactHandler = () => {
-    setIsloading(true)
-    fetch(DATA_URL)
-      .then((rawResponse) => {
-        console.log(rawResponse);
-        return rawResponse.json();
-      })
-      .then((response) => {
-        console.log(response);
-        const data = response.data.map((contactData) => {
-          return {
-            id: contactData.id,
-            contactName: contactData.name,
-            contactNum: contactData.number,
-          };
-        });
-        setContacts(data);
-        setIsloading(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchContactHandler = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(DATA_URL);
+      if (!response.ok) throw new Error('Something went wrong!');
+      const result = await response.json();
+      const data = result.data.map((contactData) => {
+        return {
+          id: contactData.id,
+          contactName: contactData.name,
+          contactNum: contactData.number,
+          avatar: contactData.photo,
+        };
       });
+      setContacts(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   const addContactHandler = (contact) => {
     console.log(contact);
   };
-  let content = <p>no contacts available!!</p>;
+
+  let content = <p>No contact available!</p>;
 
   if (contacts.length > 0) {
     content = <ContactList contacts={contacts} />;
   }
-  if(isLoading){
-    content=<p>loading please wait</p>
+
+  if (error) {
+    content = <p className='error'>{error}</p>;
   }
+
+  if (isLoading) {
+    content = <p>Loading please wait...</p>;
+  }
+
   return (
-    <Fragment>
+    <React.Fragment>
       <section>
-        <button>add contact </button>
-        <button onClick={fetchContactHandler}>fetch contact</button>
+        <button>Add Contact</button>
+        <button onClick={fetchContactHandler}>Fetch Contact</button>
       </section>
       <section>
         <AddContact onAddContact={addContactHandler} />
       </section>
       <section>{content}</section>
-    </Fragment>
+    </React.Fragment>
   );
-}
+};
 
 export default App;
