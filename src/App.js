@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import AddContact from './components/AddContact';
 import ContactList from './components/ContactList';
 const DB_URL =
@@ -8,8 +8,10 @@ const App = () => {
   const [contacts, setContacts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const fetchContactHandler = async () => {
+ useEffect(()=>{
+    fetchContactHandler()
+ },[fetchContactHandler])
+  const fetchContactHandler = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -33,7 +35,7 @@ const App = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  });
 
   const addContactHandler = async (contact) => {
     const data = {
